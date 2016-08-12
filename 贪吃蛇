@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>  
+    <meta charset="UTF-8">  
+    <title>Document</title>  
+    <style>
+    .snakechess{width:400px;height:400px;background:black;position:relative;}
+    .foods{display:inline-block;width:5px;height:5px;background:white;position:absolute;left:0px;top:0px;}
+    .snakespan{display:inline-block;width:5px;height:5px;background:white;position:absolute;}
+    .score{margin-top: 20px;font-size: 20px;}
+    </style>
+</head>
+<body>  
+    <div class="snakechess" id="snakechess">
+        <span class="snakespan"></span>
+        <span class="snakespan"></span>
+        <span class="snakespan"></span>
+        <span class="snakespan"></span>
+        <span class="snakespan"></span>
+    </div>
+    <div class="score">
+        <span class="score-num">0</span>
+        分
+    </div>
+    <script> 
+    var snakearr=[
+        [10,10],[15,10],[20,10],[25,10],[30,10]
+    ];
+    var snakespans=null;
+    var interval=null;
+    var foodleft=0;
+    var foodtop=0;
+    var gameover=false;
+    var snakeobj=document.getElementById("snakechess");
+    var speed=100;
+    var score=0;
+
+    function initfoods(){
+        foodleft=(Math.floor(Math.random()*80*+1))*5;
+        foodtop=(Math.floor(Math.random()*80+1))*5;
+        var ospan=document.createElement("span");
+        ospan.setAttribute("class","foods");
+        ospan.style.left=foodleft+"px";
+        ospan.style.top=foodtop+"px";
+        snakeobj.appendChild(ospan);
+    }
+    function initsnake(){
+        snakespans=document.getElementsByClassName("snakespan");
+        for(var i=0;i<snakespans.length;i++){
+            snakespans[i].style.left=snakearr[i][0]+"px";
+            snakespans[i].style.top=snakearr[i][1]+"px";
+        }
+    }
+    function addsnakespan(){
+        var snakespan=document.createElement("span");
+        snakespan.setAttribute("class","snakespan");
+        snakeobj.appendChild(snakespan);
+        snakespan.style.left=snakearr[0][0]+"px";
+        snakespan.style.top=snakearr[0][1]+"px";
+    }
+    function isdie(){
+        for(var i=0;i<snakearr.length-1;i++){
+           if(snakearr[snakearr.length-1][0]==snakearr[i][0]&&
+            snakearr[snakearr.length-1][1]==snakearr[i][1]) 
+           {
+                alert("吃了自己");
+                gameover=true;
+                clearInterval(interval);
+           }else if(snakearr[snakearr.length-1][0]==0||
+                snakearr[snakearr.length-1][400]||
+                snakearr[snakearr.length-1][1]==0||
+                snakearr[snakearr.length-1][1]==400)
+            {
+                alert("you are die!!");
+                clearInterval(interval);
+                gameover=true;
+            }
+        }
+    }
+    function move(currentKey){
+        isdie();
+        eat();
+        for(var i=0;i<snakearr.length-1;i++){
+            snakearr[i][0]=snakearr[i+1][0];
+            snakearr[i][1]=snakearr[i+1][1];
+        }
+        //向左
+        if(currentKey==37){
+            snakearr[snakearr.length-1][0]-=5;
+        }
+        //向上
+        if(currentKey==38){
+            snakearr[snakearr.length-1][1]-=5;
+        }
+        //向右
+        if(currentKey==39){
+            snakearr[snakearr.length-1][0]+=5;
+        }
+        //向下
+        if(currentKey==40){
+            snakearr[snakearr.length-1][1]+=5;
+        }
+        for(var i=0;i<snakearr.length;i++){
+            snakespans[i].style.left=snakearr[i][0]+"px";
+            snakespans[i].style.top=snakearr[i][1]+"px";
+        }
+    }
+    function eat(){
+        if(snakearr[snakearr.length-1][0]==foodleft&&
+            snakearr[snakearr.length-1][1]==foodtop)
+        {   
+            score+=50;
+            document.getElementsByClassName("score-num")[0].innerHTML=score;
+            snakeobj.removeChild(document.getElementsByClassName("foods")[0]);
+            snakearr.unshift([snakearr[0][0],snakearr[0][1]]);
+            initfoods();
+            addsnakespan();
+            initsnake();
+        }
+    }
+    document.onkeydown=function(e){
+        var e=e||event,currentKey=0;
+        var currentKey=e.keyCode||e.charCode||e.which;
+        if(gameover){
+            return;
+        }
+        clearInterval(interval);
+        if(snakearr.length>10){
+            speed=50;
+        }
+        interval=setInterval(function(){move(currentKey)},speed);
+    };
+    initfoods();
+    initsnake();
+    </script>
+</body>
+</html>
