@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>canvas画布</title>
+	<style>
+	#myCanvas{border:1px solid black;display: block;}
+	</style>
+	<script>
+	
+	window.onload=function(){
+		var canvas=document.getElementById('myCanvas');
+		var ctx=canvas.getContext('2d');
+	
+		var me=true;
+		var chessborad=[];
+		var wins=[];
+		var count=0;
+		var over=false;
+		for(var i=0;i<12;i++){
+			chessborad[i]=[];
+			for(var j=0;j<12;j++){
+				chessborad[i][j]=0;
+			}
+		}
+		for(var i=0;i<12;i++){
+			ctx.moveTo(10+30*i, 10);
+			ctx.lineTo(10+30*i, 340);
+			ctx.stroke();
+			ctx.moveTo(10, 10+30*i);
+			ctx.lineTo(340, 10+30*i);
+			ctx.stroke();
+		}
+		for(var i=0;i<12;i++){
+			wins[i]=[];
+			for(var j=0;j<12;j++){
+				wins[i][j]=[];
+			}
+		}
+
+		//垂直判断
+		for(var i=0;i<12;i++){
+			for(var j=0;j<8;j++){
+				for(var k=0;k<5;k++){
+					wins[i][j+k][count]=true;
+				}
+				count++;
+			}
+		}
+		//左右判断
+		for(var i=0;i<12;i++){
+			for(var j=0;j<8;j++){
+				for(var k=0;k<5;k++){
+					wins[j+k][i][count]=true;
+				}
+				count++;
+			}
+		}
+		//正斜判断
+		for(var i=0;i<8;i++){
+			for(var j=0;j<8;j++){
+				for(var k=0;k<5;k++){
+					wins[i+k][j+k][count]=true;
+				}
+				count++;
+			}
+		}
+		//反斜判断
+		for(var i=0;i<8;i++){
+			for(var j=11;j>3;j--){
+				for(var k=0;k<5;k++){
+					wins[i+k][j-k][count]=true;
+				}
+				count++;
+			}
+		}
+		var blackwin=[];
+		var whitewin=[];
+		for(var i=0;i<count;i++){
+			blackwin[i]=0;
+			whitewin[i]=0;
+		}
+		function onestep(i,j,me){
+			ctx.beginPath();
+			ctx.arc(10+30*i,10+30*j,10,0,Math.PI*2,true);
+			ctx.closePath();
+			var grad=ctx.createRadialGradient(10+30*i,10+30*j,10,10+30*i,10+30*j,3);
+			if(me){
+				grad.addColorStop(0,"#0A0A0A");
+				grad.addColorStop(1,"#636766");
+				chessborad[i][j]=1;
+			}else{
+				grad.addColorStop(0,"#D1D1D1");
+				grad.addColorStop(1,"#F9F9F9");
+				chessborad[i][j]=2;
+			}
+			ctx.fillStyle=grad;
+			ctx.fill();
+		}
+		canvas.onclick=function(e){
+			if(over){
+				return;
+			}
+			x=e.pageX;
+			y=e.pageY;
+			i=Math.floor(x/30);
+			j=Math.floor(y/30);
+			if(chessborad[i][j]==0){
+				onestep(i,j,me);
+				me=!me;
+				for(var k=0;k<count;k++){
+					if(wins[i][j][k]&& chessborad[i][j]==1){
+						blackwin[k]++;
+						if(blackwin[k]==5){
+							alert("黑赢了！");
+							over=true;
+						}
+					}
+					if(wins[i][j][k]&& chessborad[i][j]==2){
+						whitewin[k]++;
+						if(whitewin[k]==5){
+							alert("白赢了！");
+							over=true;
+						}
+					}
+				}
+			}
+		};
+	};
+	</script>
+</head>
+<body>
+	<canvas id="myCanvas" width="400" height="400"></canvas>
+</body>
+</html>
